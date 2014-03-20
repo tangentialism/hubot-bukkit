@@ -33,6 +33,15 @@ hubot bukkit spidey
 
 Anyway, you get the picture.
 
+## FAQ
+
+### Wait, aren't you the same guy who wrote the legendary Ruby-based [Bukkit-izer](https://github.com/tangentialism/Bukkit-izer)?
+
+Yes—it's touching that you remember it! I obviously have a very narrow set of interests. Now you don't have to host anything.
+
+### Why haven't you submitted this to `hubot-scripts`?
+
+I don't know.
 
 
 
