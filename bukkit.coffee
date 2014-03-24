@@ -15,9 +15,6 @@
 #   David Yee (@tangentialism)
 #
 
-#
-# bukkits = [['yiss.gif', 'bukkit'], ['foo.jpg', 'misatkes']]
-#
 
 htmlparser = require "htmlparser"
 Select     = require("soupselect").select
@@ -31,17 +28,23 @@ module.exports = (robot) ->
     'wilto': 'http://wil.to/_/'
   }
 
-  bukkits = () ->
+  bukkits = (source_bukkit) ->
     if bukkit_bucket.length == 0
       for own key, source of sources
-        bukkit_bucket.concat fill_bukkit(key, source)
-        return bukkit_bucket
+        fill_bukkit(key, source)
+    
+    if source_bukkit
+      return bukkit_bucket.filter (x) -> x[1] == source_bukkit
     else
       return bukkit_bucket
 
-  bukkits_that_look_like = (word) ->
+  bukkits_that_look_like = (word, source_bukkit) ->
     reggie = new RegExp(word, "i");
-    return bukkits().filter (x) -> x[0].match(reggie)
+
+    if source_bukkit
+      return bukkits().filter (x) -> x[0].match(reggie) && x[1] == source_bukkit
+    else
+      return bukkits().filter (x) -> x[0].match(reggie)
 
   fill_bukkit = (key, source) ->
     robot.http(source)
@@ -49,25 +52,25 @@ module.exports = (robot) ->
         handler = new htmlparser.DefaultHandler()
         parser = new htmlparser.Parser(handler)
         parser.parseComplete(body)
-        bukkitz_elementz = Select handler.dom, "tr td a"
-        console.log(bukkitz_elementz)
-        bukkit_contentz = ([link.attribs.href, source] for link in bukkitz_elementz)
-        return bukkit_contentz
+        bukkitz_elementz = Select handler.dom, "a"
+        bukkit_bucket = bukkit_bucket.concat([link.attribs.href, key] for link in bukkitz_elementz when link.attribs.href.match(/^[^\?\/]/))
 
   giffize_url = (result) ->
-    return "#{sources[result[1]]}#{sources[0]}"
+    return "#{sources[result[1]]}#{result[0]}"
 
+  # Start it up.
   bukkits()
 
-  robot.respond /bukkit( \w+)?$/i, (msg) ->
+  robot.respond /bukkit( \w+)?(?: from (\w+))?$/i, (msg) ->
     if msg.match[1]
+      source = msg.match[2] if msg.match[2]
       # Let's look for something... *special*
       term = msg.match[1].replace(/\s+/, '')
-      my_bukkit = msg.random bukkits_that_look_like(term)
+      my_bukkit = msg.random bukkits_that_look_like(term, source)
       if my_bukkit
         msg.send giffize_url(my_bukkit)
       else
-        msg.reply "There is a curious void in the bukk.itz for “#{term}”"
+        msg.reply "There is a curious void in the #{source || 'bukk.itz'} for “#{term}”"
     else
-      my_bukkit = msg.random bukkits()
+      my_bukkit = msg.random bukkits(source)
       msg.send giffize_url(my_bukkit)
