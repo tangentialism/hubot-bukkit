@@ -29,7 +29,7 @@ module.exports = (robot) ->
     'bukkit': 'http://bukk.it/',
     'misatkes': 'http://misatkes.com/',
     'ryan': 'http://ryan.is/gifs/',
-    'floops': 'http://floops.io/'
+    'floops': 'http://floop.me/'
   }
 
   bukkits = (source_bukkit) ->
